@@ -6,7 +6,8 @@ var (
 		"reboot":   {},
 	}
 	VM_COMMANDS = map[string]struct{}{
-		"start": {},
-		"stop":  {},
+		"start":    {},
+		"stop":     {},
+		"shutdown": {},
 	}
 )
