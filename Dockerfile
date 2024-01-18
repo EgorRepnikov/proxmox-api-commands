@@ -1,24 +1,21 @@
-FROM golang:latest AS build
+FROM golang:1.20.13 AS build
 
-ENV GO111MODULE=on
+WORKDIR /app
 
-WORKDIR /go/src/app
-
-COPY go.mod .
-COPY go.sum .
+COPY go.mod go.sum .
 
 RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o ./bin/proxmox-api-commands ./cmd/proxmox-api-commands
+RUN CGO_ENABLED=0 GOOS=linux go build -o ./bin/proxmox-api-commands ./cmd/proxmox-api-commands
 
-# final stage
-FROM alpine:latest
+FROM alpine:3.19.0
 
-RUN apk --no-cache add ca-certificates
 WORKDIR /usr/bin
-COPY --from=build /go/src/app/bin/proxmox-api-commands proxmox-api-commands
+
+COPY --from=build /app/bin/proxmox-api-commands proxmox-api-commands
 
 EXPOSE ${PORT}
+
 ENTRYPOINT /usr/bin/proxmox-api-commands
